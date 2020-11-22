@@ -3,7 +3,6 @@ import {Lens} from "../optics/optics";
 import {LensContext} from "../optics/LensContext";
 
 
-//Why is this like this? I could get away with Domain extends... in my usage, but I use this a lot, and it would quickly get messy. This is messy, but just in one place
 //Why does this have 'ReactElement': to avoid binding this project to react. This is the only bit that's used, and it's just 'the result', so it might as well be generic
 interface PropsWithContextDomainCache<ReactElement, Main, T> {
     context: LensContext<DomainWithCache<ReactElement>, Main, T>
