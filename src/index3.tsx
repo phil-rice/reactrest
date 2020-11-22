@@ -5,8 +5,9 @@ import {BoardData, defaultStateLens, GameData, NoughtOrCross} from "./domain/Gam
 import {getElement} from "./utils";
 import {LensContext, LensProps} from "./optics/LensContext";
 import {Lens} from "./optics/optics";
+import {LensReact} from "./optics/LensReact";
 
-type GameProps<Main, T> = LensProps<Domain, React.ReactElement, Main, T>
+type GameProps<Main, T> = LensProps<Domain,  Main, T>
 
 class Domain {
     stateLens: Lens<GameData, NoughtOrCross>
@@ -15,7 +16,7 @@ class Domain {
 
     invert(s: NoughtOrCross): NoughtOrCross {return (s === 'X' ? 'O' : 'X')}
 
-    setSquareAndToggleState = (context: LensContext<Domain, React.ReactElement, GameData, NoughtOrCross>) =>
+    setSquareAndToggleState = (context: LensContext<Domain, GameData, NoughtOrCross>) =>
         Lens.transform2(context.lens, this.stateLens)((sq, state) =>
             sq === '' ? {one: state, two: this.invert(state)} : {one: sq, two: state})(context.main)
 }
@@ -44,6 +45,6 @@ function Square(props: GameProps<GameData, NoughtOrCross>) {
 
 let element = getElement("root")
 let gameDomain: Domain = new Domain(defaultStateLens)
-LensContext.setJson<Domain, React.ReactElement, GameData>(gameDomain, element, c => (ReactDOM.render(<SimpleGame context={c}/>, element)))
+LensReact.setJson<Domain, GameData>(gameDomain, element, c => (ReactDOM.render(<SimpleGame context={c}/>, element)))
 
 

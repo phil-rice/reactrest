@@ -1,5 +1,5 @@
 import React from "react";
-import {CpqDomain, CpqProperties, CqpFilter} from "../domain/CpqDomain";
+import {CpqProperties, CqpFilter} from "../domain/CpqDomain";
 import {Lens} from "../optics/optics";
 
 

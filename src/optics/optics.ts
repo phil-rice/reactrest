@@ -61,7 +61,7 @@ export class Lens<Main, Child> {
     }
     transform(fn: (oldChild: Child) => Child): (m: Main) => Main { return m => this.set(m, fn(this.get(m)))}
     transformInSitu(m: Main, fn: (oldChild: Child) => Child) { return this.set(m, fn(this.get(m)))}
-    static build = <Main>(): LensBuilder<Main, Main> => new LensBuilder<Main, Main>(Lens.identity());
+    static build<Main>() {return new LensBuilder<Main, Main>(Lens.identity())}
     static TupleLens<Main, C1, C2>(lens1: Lens<Main, C1>, lens2: Lens<Main, C2>): Lens<Main, Tuple<C1, C2>> {
         let get: Getter<Main, Tuple<C1, C2>> = main => ({one: lens1.get(main), two: lens2.get(main)})
         let set: Setter<Main, Tuple<C1, C2>> = (main, tuple) => lens1.set(lens2.set(main, tuple.two), tuple.one)

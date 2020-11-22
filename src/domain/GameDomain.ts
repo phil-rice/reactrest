@@ -4,7 +4,7 @@ import {LoadAndCompileCache} from "../componentFromServer/LoadAndCompileCache";
 import {MakeComponentFromServer} from "../componentFromServer/ComponentFromServer";
 import {LensContext, LensProps} from "../optics/LensContext";
 
-export type GameProperties<Main, T> = LensProps<GameDomain<Main>, React.ReactElement, Main, T>
+export type GameProperties<Main, T> = LensProps<GameDomain<Main>, Main, T>
 
 
 export interface Link {
@@ -35,7 +35,7 @@ export interface HasStateLens<Main> {
 export let defaultStateLens = Lens.build<GameData>().field('state');
 
 export class GameDomain<Main> {
-    componentCache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>
+    cache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>
     stateLens: Lens<Main, NoughtOrCross>
     nextState: NoughtOrCross = "X"
     toggleNextState() {return this.nextState = (this.nextState === "X") ? "O" : "X"}
@@ -46,13 +46,13 @@ export class GameDomain<Main> {
     }
 
     constructor(componentCache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>, stateLens: Lens<Main, NoughtOrCross>) {
-        this.componentCache = componentCache
+        this.cache = componentCache
         this.stateLens = stateLens
     }
 
     invert(s: NoughtOrCross): NoughtOrCross {return (s === 'X' ? 'O' : 'X')}
 
-    setSquareAndToggleState = (context: LensContext<GameDomain<Main>, React.ReactElement, Main, NoughtOrCross>) =>
+    setSquareAndToggleState = (context: LensContext<GameDomain<Main>, Main, NoughtOrCross>) =>
         Lens.transform2(context.lens, this.stateLens)((sq, state) =>
             sq === '' ? {one: state, two: this.invert(state)} : {one: sq, two: state})(context.main)
 

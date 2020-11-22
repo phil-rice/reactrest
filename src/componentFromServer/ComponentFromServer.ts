@@ -1,16 +1,25 @@
-import {LensContext} from "../optics/LensContext";
 import {LoadAndCompileCache} from "./LoadAndCompileCache";
+import {Lens} from "../optics/optics";
+import {LensContext} from "../optics/LensContext";
 
-export interface MakeComponentFromServer<ReactElement> {<Domain extends DomainWithCache<ReactElement>, Main, T>(props: ComponentFromServerProperties<Domain, Main, T, ReactElement>): ReactElement}
 
-export interface DomainWithCache<ReactElement> {
-    componentCache: LoadAndCompileCache<MakeComponentFromServer<ReactElement>>
-}
-
-export interface ComponentFromServerProperties<Domain extends DomainWithCache<Element>, Main, T, Element> {
-    context: LensContext<Domain, Element, Main, T>
+//Why is this like this? I could get away with Domain extends... in my usage, but I use this a lot, and it would quickly get messy. This is messy, but just in one place
+//Why does this have 'ReactElement': to avoid binding this project to react. This is the only bit that's used, and it's just 'the result', so it might as well be generic
+interface PropsWithContextDomainCache<ReactElement, Main, T> {
+    context: LensContext<DomainWithCache<ReactElement>, Main, T>
     [a: string]: any
 }
+interface PropsForChildWithContextDomainCache<ReactElement, Main, T, Child> extends PropsWithContextDomainCache<ReactElement, Main, T> {
+    render: string
+    lens: Lens<T, Child>
+}
+export interface DomainWithCache<ReactElement> {
+    cache: LoadAndCompileCache<MakeComponentFromServer<ReactElement>>,
+    [a: string]: any
+}
+
+
+export interface MakeComponentFromServer<ReactElement> {<Main, T>(props: PropsWithContextDomainCache<ReactElement, Main, T>): ReactElement}
 
 function findRenderUrl(name: string, child: any): string {
     if (child._render && name in child._render) return child._render[name]
@@ -18,22 +27,27 @@ function findRenderUrl(name: string, child: any): string {
     throw Error(`Cannot find renderUrl for  [${name}] in [${JSON.stringify(child, null, 2)}]`)
 }
 
-export function ComponentFromServer<Domain extends DomainWithCache<ReactElement>, Main, T, ReactElement>(properties: ComponentFromServerProperties<Domain, Main, T, ReactElement>): ReactElement {
+export function ComponentFromServer<ReactElement, Main, T, >(properties: PropsWithContextDomainCache<ReactElement, Main, T>): ReactElement {
     console.log("ComponentFromServer", properties)
     let renderUrl = findRenderUrl("_self", properties.context.json())
-    let makeComponent: MakeComponentFromServer<ReactElement> = properties.context.domain.componentCache.getFromCache(renderUrl)
-    return makeComponent(properties)
+    let makeComponent: MakeComponentFromServer<ReactElement> = properties.context.domain.cache.getFromCache(renderUrl)
+    console.log("makecomponent", makeComponent)
+    let result = makeComponent(properties);
+    console.log("madecomponent", result)
+    return result
 }
 
-export interface ChildFromServerProperties<Domain extends DomainWithCache<Element>, Main, Parent, Child, Element> {
-    context: LensContext<Domain, Element, Main, Parent>
-    render: string
-    childContext: LensContext<Domain, Element, Main, Child>
-    [a: string]: any
+
+function setLensInProperties<ReactElement, Main, T, Child>(p: PropsWithContextDomainCache<ReactElement, Main, T>, lens: Lens<T, Child>): PropsWithContextDomainCache<ReactElement, Main, Child> {
+    return ({...p, context: p.context.withLens(lens)})
 }
 
-export function ChildFromServer<Domain extends DomainWithCache<Element>, Main, Parent, Child, Element>(properties: ChildFromServerProperties<Domain, Main, Parent, Child, Element>): Element {
-    let renderUrl = findRenderUrl(properties.render, properties.context.json())
-    let makeComponent: MakeComponentFromServer<Element> = properties.childContext.domain.componentCache.getFromCache(renderUrl)
-    return makeComponent({context: properties.childContext})
+
+export function ChildFromServer<ReactElement, Main, T, Child>(properties: PropsForChildWithContextDomainCache<ReactElement, Main, T, Child>): ReactElement {
+    let json = properties.context.lens.get(properties.context.main)
+    let renderUrl = findRenderUrl(properties.render, json)
+    let makeComponent: MakeComponentFromServer<ReactElement> = properties.context.domain.cache.getFromCache(renderUrl)
+    let newProperties = setLensInProperties(properties, properties.lens);
+    console.log("ChildFromServer", newProperties)
+    return makeComponent(newProperties)
 }

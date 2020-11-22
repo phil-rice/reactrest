@@ -6,7 +6,7 @@ import {fromObject, getElement} from "../utils";
 import ReactDOM from "react-dom";
 
 
-export type NavProperties<DomainMap, Main, T> = LensProps<NavDomain<DomainMap, React.ReactElement>, React.ReactElement, Main, T>
+export type NavProperties<DomainMap, Main, T> = LensProps<NavDomain<DomainMap, React.ReactElement>, Main, T>
 
 interface SelfRender {
     _render: { _self: string }
@@ -21,13 +21,13 @@ export interface NavGroupData extends SelfRender {
     name: string
     "jsonFiles": string[]
 }
-export class NavDomain<DomainMap, Element> implements DomainWithCache<Element> {
-    componentCache: LoadAndCompileCache<MakeComponentFromServer<Element>>
+export class NavDomain<DomainMap, Element>  {
+    cache: LoadAndCompileCache<MakeComponentFromServer<Element>>
     loadUrlAndPutInElement: <K extends keyof DomainMap>(domainName: K, url: string, name: string) => void
     target: string
 
     constructor(componentCache: LoadAndCompileCache<MakeComponentFromServer<Element>>, loadUrlAndPutInElement: <K extends keyof DomainMap>(domainName: K, url: string, name: string) => void, target: string) {
-        this.componentCache = componentCache
+        this.cache = componentCache
         this.loadUrlAndPutInElement = loadUrlAndPutInElement
         this.target = target
     }

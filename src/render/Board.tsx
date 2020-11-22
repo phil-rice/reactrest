@@ -1,11 +1,12 @@
 import React from 'react';
-import {BoardData, GameDomain, GameProperties, NoughtOrCross} from "../domain/GameDomain";
-import {Lens} from "../optics/optics";
-import {ChildFromServer, ComponentFromServer} from "../componentFromServer/ComponentFromServer";
+import {BoardData, GameProperties} from "../domain/GameDomain";
+import {Lens, LensBuilder} from "../optics/optics";
+import {ChildFromServer} from "../componentFromServer/ComponentFromServer";
+
+let lensBuilder: LensBuilder<BoardData, BoardData> = Lens.build();
 
 function Board<Main>(props: GameProperties<Main, BoardData>) {
-    let sq = (n: number) =>
-        (<ChildFromServer render='square' context={props.context} childContext={props.context.focusOn('squares').withLens(Lens.nth(n))}/>)
+    const sq = (n: number) => (<ChildFromServer render='square' context={props.context} lens={lensBuilder.then('squares').andThen(Lens.nth(n))}/>)
     return (
         <div>
             <div className="board-row">{sq(0)} {sq(1)} {sq(2)}</div>

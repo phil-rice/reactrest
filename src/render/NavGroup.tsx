@@ -3,7 +3,7 @@ import {NavGroupData, NavProperties} from "../domain/NavDomain";
 
 function NavGroup<DomainMap, Main>(props: NavProperties<DomainMap, Main, NavGroupData>) {
     let name = props.context.json().name
-    let group = props.context.json().jsonFiles.map((url, i) =>
+    let group = props.context.json().jsonFiles.map((url: string, i: number) =>
         (<li key={url}><a onClick={() => {
             console.log("onclick", name, url)
             // @ts-ignore //TODO consider how to remove this... how do we check that the name is legit? Or do we care? because we have a run time check with message anyway...

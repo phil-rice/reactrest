@@ -4,7 +4,7 @@ import {MakeComponentFromServer} from "../componentFromServer/ComponentFromServe
 import {LensProps} from "../optics/LensContext";
 
 
-export type CpqProperties<Main, T> = LensProps<CpqDomain, React.ReactElement, Main, T>
+export type CpqProperties<Main, T> = LensProps<CpqDomain, Main, T>
 
 export interface Link {href: string}
 export interface SelfLink {_links: { _self: Link }}
@@ -20,8 +20,8 @@ export interface CqpFilter extends SelfRender {
 }
 
 export class CpqDomain {
-    componentCache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>
-    constructor(componentCache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>) {this.componentCache = componentCache;}
+    cache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>
+    constructor(componentCache: LoadAndCompileCache<MakeComponentFromServer<React.ReactElement>>) {this.cache = componentCache;}
     makeOptions(selected: string | null, values: string[]) {
         let option = (value: string) => (selected === value) ?
             (<option key={value} selected>{value}</option>) :
