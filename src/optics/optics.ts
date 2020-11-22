@@ -31,7 +31,10 @@ export class Lens<Main, Child> {
     }
     get: (m: Main) => Child;
     set: (m: Main, newChild: Child) => Main;
-
+    constructor(get: (m: Main) => Child, set: (m: Main, newChild: Child) => Main) {
+        this.get = get;
+        this.set = set;
+    }
     static tuple<Main, C1, C2>(lens1: Lens<Main, C1>, lens2: Lens<Main, C2>): Lens<Main, Tuple<C1, C2>> {
         let get = (main: Main) => ({one: lens1.get(main), two: lens2.get(main)})
         let set = (main: Main, tuple: Tuple<C1, C2>) => lens1.set(lens2.set(main, tuple.two), tuple.one)
@@ -49,10 +52,7 @@ export class Lens<Main, Child> {
             }
         }
     }
-    constructor(get: (m: Main) => Child, set: (m: Main, newChild: Child) => Main) {
-        this.get = get;
-        this.set = set;
-    }
+
 
     andThen<NewChild>(l: Lens<Child, NewChild>): Lens<Main, NewChild> {
         return new Lens(

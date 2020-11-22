@@ -41,7 +41,5 @@ export class LensContext<Domain,  Main, T> {
     setFrom<Child>(lens: Lens<T, Child>, json: Child) {this.dangerouslySetMain(this.lens.andThen(lens).set(this.main, json))}
     setFromTwo<Other>(lens: Lens<Main, Other>) {return (fn: (t: T, o: Other) => Tuple<T, Other>) => this.dangerouslySetMain(Lens.transform2(this.lens, lens)(fn)(this.main))}
 
-
-
 }
 
