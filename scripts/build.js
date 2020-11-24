@@ -9,7 +9,7 @@ const jsonSrcDir = 'src/json';
 
 // Read files from the folder
 const files = fs.readdirSync(srcDir);
-fs.mkdirSync(targetDir, { recursive: true });
+
 let allShas = {};
 
 function readFiles() {
@@ -97,6 +97,25 @@ function replaceMultipleStrings(str) {
     return str;
 }
 
+function createDirectories(dPath) {
+    files.forEach((file, index) => {
+        const [fileNameNoExt, ...fileProps] = file.split('.');
+        const dirPath = path.join(dPath, fileNameNoExt);
+        fs.access(dirPath, (err) => {
+            if (err) {
+                console.log(`Directory ${dirPath} does not exist. Creating...`);
+                fs.mkdir(dirPath, { recursive: true }, (err) => {
+                    if (err) throw err;
+                    console.log("created", dirPath);
+                });
+            } else {
+                console.log(`Directory ${dirPath} exists.`);
+            }
+        });
+
+    });
+}
+
 function removeOtherFiles(directory, retainFile) {
     fs.readdir(directory, (err, files) => {
         if (err) {
@@ -116,6 +135,7 @@ function removeOtherFiles(directory, retainFile) {
 
 console.time('buildScriptExecutionTime');
 console.log('Script execution started');
+createDirectories(targetDir);
 readFiles();
 
 process.on('exit', function (code) {
